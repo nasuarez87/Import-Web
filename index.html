@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de importación - Honda S2000</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: #f1f4f8; color: #1f2937;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: #6b7280; font-size: 14px; margin-bottom: 20px; }
+  .card {
+    background: #fff; border-radius: 12px; padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px;
+  }
+  .main-input label { font-weight: 600; display: block; margin-bottom: 8px; }
+  .main-input .row { display: flex; align-items: center; gap: 10px; }
+  .main-input input {
+    font-size: 28px; font-weight: 700; padding: 10px 14px; width: 100%;
+    border: 2px solid #2563eb; border-radius: 8px; color: #1e3a8a;
+  }
+  .main-input .cur { font-size: 20px; font-weight: 700; color: #2563eb; }
+  .hint { font-size: 13px; color: #6b7280; margin-top: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  td { padding: 8px 4px; border-bottom: 1px solid #eef1f5; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr.sub td { font-weight: 600; background: #f8fafc; }
+  tr.total td {
+    font-weight: 700; font-size: 18px; border-top: 2px solid #1f2937;
+    border-bottom: none; padding-top: 12px;
+  }
+  tr.total2 td { color: #6b7280; font-size: 14px; border-bottom: none; }
+  .small { color: #6b7280; font-size: 12px; }
+  details summary { cursor: pointer; font-weight: 600; }
+  .grid { display: grid; grid-template-columns: 1fr 120px; gap: 8px 12px; align-items: center; margin-top: 12px; }
+  .grid input {
+    padding: 6px 8px; border: 1px solid #d1d5db; border-radius: 6px;
+    font-size: 14px; text-align: right; width: 100%;
+  }
+  .warn {
+    background: #fef3c7; border-left: 4px solid #d97706; border-radius: 8px;
+    padding: 14px 16px; font-size: 13px; line-height: 1.5; margin-bottom: 16px;
+  }
+  .warn strong { color: #92400e; }
+  button {
+    margin-top: 12px; padding: 8px 14px; border: 0; border-radius: 6px;
+    background: #e5e7eb; cursor: pointer; font-size: 13px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Calculadora de importación - Honda S2000</h1>
+  <div class="sub">Ingresá el valor FOB en euros. Todo lo demás se recalcula solo.</div>
+
+  <div class="warn">
+    <strong>Advertencias:</strong> el "cupo" de un repatriado tercero puede ser ilegal (el beneficio de repatriación es personal).
+    Las alícuotas, la franquicia y los montos de origen son estimaciones que tenés que verificar con un despachante y un abogado aduanero antes de pagar.
+  </div>
+
+  <div class="card main-input">
+    <label for="fob">Valor FOB del auto</label>
+    <div class="row">
+      <input id="fob" type="number" value="27000" min="0" step="100" oninput="calc()">
+      <span class="cur">EUR</span>
+    </div>
+    <div class="hint">Este es el único campo que necesitás cambiar.</div>
+  </div>
+
+  <div class="card">
+    <details>
+      <summary>Supuestos editables (tipo de cambio, flete, alícuotas, gastos)</summary>
+      <div class="grid">
+        <span>Tipo de cambio EUR/USD</span><input id="tc" type="number" value="1.08" step="0.01" oninput="calc()">
+        <span>Flete marítimo y seguro (parte del CIF, USD)</span><input id="flete" type="number" value="3800" oninput="calc()">
+        <span>Franquicia exenta (USD)</span><input id="franquicia" type="number" value="15000" oninput="calc()">
+        <span>Derechos de importación %</span><input id="derechos" type="number" value="35" step="0.1" oninput="calc()">
+        <span>Tasa de estadística %</span><input id="estad" type="number" value="3" step="0.1" oninput="calc()">
+        <span>IVA %</span><input id="iva" type="number" value="21" step="0.1" oninput="calc()">
+        <span>IVA adicional (percepción) %</span><input id="ivaAd" type="number" value="20" step="0.1" oninput="calc()">
+        <span>Ganancias (percepción) %</span><input id="gan" type="number" value="6" step="0.1" oninput="calc()">
+        <span>Ingresos Brutos (percepción) %</span><input id="iibb" type="number" value="2.5" step="0.1" oninput="calc()">
+        <span>Comisión de compra (USD)</span><input id="comision" type="number" value="3000" oninput="calc()">
+        <span>Guarda en origen (USD)</span><input id="guarda" type="number" value="450" oninput="calc()">
+        <span>Flete y contenedor en origen (USD, no tributa)</span><input id="fleteOrigen" type="number" value="2150" oninput="calc()">
+        <span>Cupo de repatriado tercero (USD)</span><input id="cupo" type="number" value="10000" oninput="calc()">
+        <span>Gastos portuarios y patentamiento (USD)</span><input id="portuarios" type="number" value="3850" oninput="calc()">
+      </div>
+      <button onclick="resetDefaults()">Restaurar valores originales</button>
+    </details>
+  </div>
+
+  <div class="card">
+    <table>
+      <tr class="sub"><td colspan="2">Valor del vehículo</td></tr>
+      <tr><td>Valor FOB (EUR)</td><td class="num" id="o_fobEur"></td></tr>
+      <tr><td>Valor FOB (USD)</td><td class="num" id="o_fobUsd"></td></tr>
+      <tr><td>Flete marítimo y seguro</td><td class="num" id="o_flete"></td></tr>
+      <tr><td>Valor CIF</td><td class="num" id="o_cif"></td></tr>
+
+      <tr class="sub"><td colspan="2">Impuestos ARCA</td></tr>
+      <tr><td>Base imponible (excedente sobre franquicia)</td><td class="num" id="o_base"></td></tr>
+      <tr><td>Derechos de importación</td><td class="num" id="o_der"></td></tr>
+      <tr><td>Tasa de estadística</td><td class="num" id="o_est"></td></tr>
+      <tr><td>IVA</td><td class="num" id="o_iva"></td></tr>
+      <tr><td>IVA adicional (percepción)</td><td class="num" id="o_ivaAd"></td></tr>
+      <tr><td>Ganancias (percepción)</td><td class="num" id="o_gan"></td></tr>
+      <tr><td>Ingresos Brutos (percepción)</td><td class="num" id="o_iibb"></td></tr>
+      <tr class="sub"><td>Total impuestos ARCA</td><td class="num" id="o_imp"></td></tr>
+
+      <tr class="sub"><td colspan="2">Gastos</td></tr>
+      <tr><td>Comisión de compra</td><td class="num" id="o_com"></td></tr>
+      <tr><td>Guarda en origen</td><td class="num" id="o_guarda"></td></tr>
+      <tr><td>Flete y contenedor en origen</td><td class="num" id="o_fleteOr"></td></tr>
+      <tr><td>Cupo de repatriado tercero</td><td class="num" id="o_cupo"></td></tr>
+      <tr><td>Gastos portuarios y patentamiento</td><td class="num" id="o_port"></td></tr>
+
+      <tr class="total"><td>COSTO TOTAL PUESTO EN CALLE Y PATENTADO</td><td class="num" id="o_total"></td></tr>
+      <tr class="total2"><td>Equivalente en EUR</td><td class="num" id="o_totalEur"></td></tr>
+    </table>
+  </div>
+</div>
+
+<script>
+const DEFAULTS = {
+  fob: 27000, tc: 1.08, flete: 3800, franquicia: 15000,
+  derechos: 35, estad: 3, iva: 21, ivaAd: 20, gan: 6, iibb: 2.5,
+  comision: 3000, guarda: 450, fleteOrigen: 2150, cupo: 10000, portuarios: 3850
+};
+
+function val(id) {
+  const v = parseFloat(document.getElementById(id).value);
+  return isNaN(v) ? 0 : v;
+}
+function fmt(n) {
+  return "USD " + Math.round(n).toLocaleString("es-AR");
+}
+function fmtEur(n) {
+  return "EUR " + Math.round(n).toLocaleString("es-AR");
+}
+function set(id, text) {
+  document.getElementById(id).textContent = text;
+}
+
+function calc() {
+  const fobEur = val("fob");
+  const tc = val("tc");
+  const fleteCif = val("flete");
+  const franquicia = val("franquicia");
+  const pDer = val("derechos") / 100;
+  const pEst = val("estad") / 100;
+  const pIva = val("iva") / 100;
+  const pIvaAd = val("ivaAd") / 100;
+  const pGan = val("gan") / 100;
+  const pIibb = val("iibb") / 100;
+
+  const fobUsd = fobEur * tc;
+  const cif = fobUsd + fleteCif;
+  const base = Math.max(0, cif - franquicia);
+
+  const der = base * pDer;
+  const est = base * pEst;
+  const baseIva = base + der + est;
+  const iva = baseIva * pIva;
+  const ivaAd = baseIva * pIvaAd;
+  const gan = baseIva * pGan;
+  const iibb = baseIva * pIibb;
+  const imp = der + est + iva + ivaAd + gan + iibb;
+
+  const com = val("comision");
+  const guarda = val("guarda");
+  const fleteOr = val("fleteOrigen");
+  const cupo = val("cupo");
+  const port = val("portuarios");
+
+  const total = fobUsd + fleteCif + imp + com + guarda + fleteOr + cupo + port;
+
+  set("o_fobEur", fobEur.toLocaleString("es-AR") + " EUR");
+  set("o_fobUsd", fmt(fobUsd));
+  set("o_flete", fmt(fleteCif));
+  set("o_cif", fmt(cif));
+  set("o_base", fmt(base));
+  set("o_der", fmt(der));
+  set("o_est", fmt(est));
+  set("o_iva", fmt(iva));
+  set("o_ivaAd", fmt(ivaAd));
+  set("o_gan", fmt(gan));
+  set("o_iibb", fmt(iibb));
+  set("o_imp", fmt(imp));
+  set("o_com", fmt(com));
+  set("o_guarda", fmt(guarda));
+  set("o_fleteOr", fmt(fleteOr));
+  set("o_cupo", fmt(cupo));
+  set("o_port", fmt(port));
+  set("o_total", fmt(total));
+  set("o_totalEur", fmtEur(tc > 0 ? total / tc : 0));
+}
+
+function resetDefaults() {
+  for (const k in DEFAULTS) {
+    document.getElementById(k).value = DEFAULTS[k];
+  }
+  // Alícuotas se cargan en porcentaje (35 = 35%)
+  calc();
+}
+
+calc();
+</script>
+</body>
+</html>
